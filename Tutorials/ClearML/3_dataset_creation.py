@@ -10,7 +10,7 @@ import pandas as pd
 from clearml import Dataset
 
 # Путь к локальному датасету
-DATA_PATH = "./data/synthetic_dataset.csv"
+DATA_PATH = "C:/Users/neddy/Machine Learning/ml/Tutorials/ClearML/data/synthetic_dataset.csv"
 
 print("=" * 60)
 print("Создание датасета ClearML")

@@ -1,5 +1,23 @@
-# Python-generated files
+*.pgn
+*.csv
+chess_lstm/data/raw/
+chess_lstm/data/processed/
+*.json
+
+checkpoints/
+*.pt
+*.h5
+*.pth
+
+.vscode/
+venv/
+env/
 __pycache__/
+*.py[cod]
+.env
+
+.clearml_cache/
+
 *.py[oc]
 build/
 dist/
@@ -8,3 +26,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Секреты
+.env
+# Системные файлы
+.DS_Store
+Thumbs.db

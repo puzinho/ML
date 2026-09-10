@@ -1,5 +1,6 @@
 # chess_lstm/train.py
 import torch
+import json
 from torch.utils.data import DataLoader, TensorDataset
 from clearml import Task
 
@@ -21,7 +22,9 @@ train_data = TensorDataset(dataset["X_train"], dataset["y_train"])
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
 
 # 3. Создание модели
-vocab_size = len(torch.load("data/processed/vocab.json"))  # берём размер словаря
+with open("data/processed/vocab.json", "r", encoding="utf-8") as f:
+    vocab = json.load(f)  # берём размер словаря
+vocab_size = len(vocab)
 model = ChessLSTM(vocab_size=vocab_size)
 
 # 4. Функция ошибки и оптимизатор

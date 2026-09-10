@@ -94,50 +94,50 @@ for epoch in range(10):
         total_loss += loss.item()
 
     avg_loss = total_loss / len(train_loader)
+    # Валидация
+    model.eval()  # Переключаем модель в режим оценки
+    val_loss = 0
+    val_top1 = 0
+    val_top3 = 0
+    val_top5 = 0
+    n_val_batches = 0
+
+    # Подготовка DataLoader для валидации
+    val_data = TensorDataset(dataset["X_val"], dataset["y_val"])
+    val_loader = DataLoader(val_data, batch_size=64, shuffle=False)
+
+    with torch.no_grad():  # Отключаем вычисление градиентов
+        for X_batch, y_batch in val_loader:
+            logits = model(X_batch)
+            loss = criterion(logits, y_batch)
+            
+            # Считаем метрики
+            top1 = calculate_topk_accuracy(logits, y_batch, k=1)
+            top3 = calculate_topk_accuracy(logits, y_batch, k=3)
+            top5 = calculate_topk_accuracy(logits, y_batch, k=5)
+            
+            val_loss += loss.item()
+            val_top1 += top1
+            val_top3 += top3
+            val_top5 += top5
+            n_val_batches += 1
+
+    # Усредняем по батчам
+    avg_val_loss = val_loss / n_val_batches
+    avg_val_top1 = val_top1 / n_val_batches
+    avg_val_top3 = val_top3 / n_val_batches
+    avg_val_top5 = val_top5 / n_val_batches
+
+    # Логируем в ClearML
+    task.logger.report_scalar("Loss", "val", value=avg_val_loss, iteration=epoch)
+    task.logger.report_scalar("Accuracy", "Top-1 (val)", value=avg_val_top1, iteration=epoch)
+    task.logger.report_scalar("Accuracy", "Top-3 (val)", value=avg_val_top3, iteration=epoch)
+    task.logger.report_scalar("Accuracy", "Top-5 (val)", value=avg_val_top5, iteration=epoch)
+
+    print(f"Валидация | Loss: {avg_val_loss:.4f} | Top-1: {avg_val_top1:.4f} | Top-5: {avg_val_top5:.4f}")
     print(f"Эпоха {epoch+1} | Loss: {avg_loss:.4f}")
     task.logger.report_scalar("Loss", "train", value=avg_loss, iteration=epoch)
 
-# Валидация
-model.eval()  # Переключаем модель в режим оценки
-val_loss = 0
-val_top1 = 0
-val_top3 = 0
-val_top5 = 0
-n_val_batches = 0
-
-# Подготовка DataLoader для валидации
-val_data = TensorDataset(dataset["X_val"], dataset["y_val"])
-val_loader = DataLoader(val_data, batch_size=64, shuffle=False)
-
-with torch.no_grad():  # Отключаем вычисление градиентов
-    for X_batch, y_batch in val_loader:
-        logits = model(X_batch)
-        loss = criterion(logits, y_batch)
-        
-        # Считаем метрики
-        top1 = calculate_topk_accuracy(logits, y_batch, k=1)
-        top3 = calculate_topk_accuracy(logits, y_batch, k=3)
-        top5 = calculate_topk_accuracy(logits, y_batch, k=5)
-        
-        val_loss += loss.item()
-        val_top1 += top1
-        val_top3 += top3
-        val_top5 += top5
-        n_val_batches += 1
-
-# Усредняем по батчам
-avg_val_loss = val_loss / n_val_batches
-avg_val_top1 = val_top1 / n_val_batches
-avg_val_top3 = val_top3 / n_val_batches
-avg_val_top5 = val_top5 / n_val_batches
-
-# Логируем в ClearML
-task.logger.report_scalar("Loss", "val", value=avg_val_loss, iteration=epoch)
-task.logger.report_scalar("Accuracy", "Top-1 (val)", value=avg_val_top1, iteration=epoch)
-task.logger.report_scalar("Accuracy", "Top-3 (val)", value=avg_val_top3, iteration=epoch)
-task.logger.report_scalar("Accuracy", "Top-5 (val)", value=avg_val_top5, iteration=epoch)
-
-print(f"Валидация | Loss: {avg_val_loss:.4f} | Top-1: {avg_val_top1:.4f} | Top-5: {avg_val_top5:.4f}")
 
 # 7. Сохранение модели
 torch.save(model.state_dict(), "models/chess_lstm.pth")

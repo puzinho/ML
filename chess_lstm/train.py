@@ -12,7 +12,7 @@ from models.chess_lstm import ChessLSTM
 # 1. Инициализация ClearML
 task = Task.init(
     project_name="Chess_LSTM",
-    task_name="Baseline v3_GPU",
+    task_name="LSTM v4",
     output_uri=True  # сохраняет артефакты на сервер ClearML
 )
 
@@ -78,11 +78,11 @@ task.connect({
     "emb_dim": 64,
     "hidden_size": 256,
     "num_layers": 2,
-    "dropout": 0.2
+    "dropout": 0.3
 })
 
 # 6. Обучение
-for epoch in range(15):
+for epoch in range(12):
     model.train()
     total_loss = 0
     for X_batch, y_batch in train_loader:

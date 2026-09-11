@@ -21,7 +21,7 @@ class ChessLSTM(nn.Module):
         emb_dim: int = 64,
         hidden_size: int = 256,
         num_layers: int = 2,
-        dropout: float = 0.2
+        dropout: float = 0.3
     ):
         """
         Параметры модели:

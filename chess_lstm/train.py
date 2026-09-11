@@ -12,13 +12,14 @@ from models.chess_lstm import ChessLSTM
 # 1. Инициализация ClearML
 task = Task.init(
     project_name="Chess_LSTM",
-    task_name="Baseline v2_GPU",
+    task_name="Baseline v3_GPU",
     output_uri=True  # сохраняет артефакты на сервер ClearML
 )
 
 # 2. Загрузка датасета
 dataset = torch.load("data/processed/dataset.pt", weights_only=False)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # вычисления на gpu, если доступно
+print(f"устройство: {device}")
 # Подготовка DataLoader
 train_data = TensorDataset(dataset["X_train"], dataset["y_train"])
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
@@ -53,8 +54,7 @@ task.logger.report_scalar("Baseline", "Top-5", value=baseline_top5, iteration=0)
 with open("data/processed/vocab.json", "r", encoding="utf-8") as f:
     vocab = json.load(f)  # берём размер словаря
 vocab_size = len(vocab)
-model = ChessLSTM(vocab_size=vocab_size)
-model = model.to(device)
+model = ChessLSTM(vocab_size=vocab_size).to(device)  # переносим модель на GPU, если доступно
 
 
 def calculate_topk_accuracy(logits, targets, k=5): # вычисляем Top-K Accuracy для батча
@@ -67,14 +67,14 @@ def calculate_topk_accuracy(logits, targets, k=5): # вычисляем Top-K Ac
     )
 
 # 4. Функция ошибки и оптимизатор
-criterion = torch.nn.CrossEntropyLoss()  # ключевая метрика для классификации
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+criterion = torch.nn.CrossEntropyLoss().to(device)  # ключевая метрика для классификации
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 
 # 5. Логирование гиперпараметров в ClearML
 task.connect({
     "vocab_size": vocab_size,
     "batch_size": 64,
-    "lr": 0.001,
+    "lr": 0.0005,
     "emb_dim": 64,
     "hidden_size": 128,
     "num_layers": 2,

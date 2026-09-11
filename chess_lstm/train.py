@@ -12,7 +12,7 @@ from models.chess_lstm import ChessLSTM
 # 1. Инициализация ClearML
 task = Task.init(
     project_name="Chess_LSTM",
-    task_name="Baseline v1",
+    task_name="Baseline v2",
     output_uri=True  # сохраняет артефакты на сервер ClearML
 )
 
@@ -24,7 +24,30 @@ train_data = TensorDataset(dataset["X_train"], dataset["y_train"])
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
 
 
+# создание baseline модели для сравнения
+def calculate_baseline_topk():
+    """Вычисляет Top-K Accuracy для частотной модели"""
+    with open("data/processed/vocab.json", "r", encoding="utf-8") as f:
+        vocab = json.load(f)
+    
+    # Сортируем ходы по частоте
+    sorted_moves = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
+    
+    # Берём только реальные ходы (без <PAD> и <UNK>)
+    sorted_moves = [move for move in sorted_moves if move[0] not in ["<PAD>", "<UNK>"]]
+    
+    # Создаём "предсказание" - топ-5 самых частых ходов
+    top5_moves = [move[1] for move in sorted_moves[:5]]
+    
+    # Вычисляем, как часто правильный ход попадает в топ-5
+    val_targets = dataset["y_val"].cpu().numpy()
+    correct_in_top5 = sum(1 for target in val_targets if target in top5_moves)
+    top5_baseline = correct_in_top5 / len(val_targets)
+    
+    return top5_baseline
 
+baseline_top5 = calculate_baseline_topk()
+task.logger.report_scalar("Baseline", "Top-5", value=baseline_top5, iteration=0)
 
 # 3. Создание модели
 with open("data/processed/vocab.json", "r", encoding="utf-8") as f:

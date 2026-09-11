@@ -68,17 +68,17 @@ def calculate_topk_accuracy(logits, targets, k=5): # вычисляем Top-K Ac
 
 # 4. Функция ошибки и оптимизатор
 criterion = torch.nn.CrossEntropyLoss().to(device)  # ключевая метрика для классификации
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # 5. Логирование гиперпараметров в ClearML
 task.connect({
     "vocab_size": vocab_size,
     "batch_size": 64,
-    "lr": 0.0005,
+    "lr": 0.001,
     "emb_dim": 64,
-    "hidden_size": 128,
+    "hidden_size": 256,
     "num_layers": 2,
-    "dropout": 0.1
+    "dropout": 0.2
 })
 
 # 6. Обучение

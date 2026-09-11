@@ -12,13 +12,13 @@ from models.chess_lstm import ChessLSTM
 # 1. Инициализация ClearML
 task = Task.init(
     project_name="Chess_LSTM",
-    task_name="Baseline v2",
+    task_name="Baseline v2_GPU",
     output_uri=True  # сохраняет артефакты на сервер ClearML
 )
 
 # 2. Загрузка датасета
 dataset = torch.load("data/processed/dataset.pt", weights_only=False)
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # вычисления на gpu, если доступно
 # Подготовка DataLoader
 train_data = TensorDataset(dataset["X_train"], dataset["y_train"])
 train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
@@ -54,9 +54,10 @@ with open("data/processed/vocab.json", "r", encoding="utf-8") as f:
     vocab = json.load(f)  # берём размер словаря
 vocab_size = len(vocab)
 model = ChessLSTM(vocab_size=vocab_size)
+model = model.to(device)
 
-def calculate_topk_accuracy(logits, targets, k=5):
-    """Вычисляет Top-K Accuracy для нашей задачи"""
+
+def calculate_topk_accuracy(logits, targets, k=5): # вычисляем Top-K Accuracy для батча
     probs = torch.softmax(logits, dim=1)
     return top_k_accuracy_score(
         y_true=targets.cpu().numpy(),
@@ -84,8 +85,8 @@ task.connect({
 for epoch in range(10):
     model.train()
     total_loss = 0
-
     for X_batch, y_batch in train_loader:
+        X_batch, y_batch = X_batch.to(device), y_batch.to(device)
         optimizer.zero_grad()
         logits = model(X_batch)
         loss = criterion(logits, y_batch)
@@ -108,6 +109,7 @@ for epoch in range(10):
 
     with torch.no_grad():  # Отключаем вычисление градиентов
         for X_batch, y_batch in val_loader:
+            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
             logits = model(X_batch)
             loss = criterion(logits, y_batch)
             
@@ -142,4 +144,4 @@ for epoch in range(10):
 # 7. Сохранение модели
 torch.save(model.state_dict(), "models/chess_lstm.pth")
 task.upload_artifact("model", "models/chess_lstm.pth")
-print("\n✅ Модель сохранена и залита в ClearML!")
+print("\nМодель сохранена и залита в ClearML")

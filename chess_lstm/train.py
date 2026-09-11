@@ -12,7 +12,7 @@ from models.chess_lstm import ChessLSTM
 # 1. Инициализация ClearML
 task = Task.init(
     project_name="Chess_LSTM",
-    task_name="LSTM v4",
+    task_name="LSTM v4.1",
     output_uri=True  # сохраняет артефакты на сервер ClearML
 )
 
@@ -123,12 +123,17 @@ for epoch in range(12):
             val_top3 += top3
             val_top5 += top5
             n_val_batches += 1
-
+    
     # Усредняем по батчам
     avg_val_loss = val_loss / n_val_batches
     avg_val_top1 = val_top1 / n_val_batches
     avg_val_top3 = val_top3 / n_val_batches
     avg_val_top5 = val_top5 / n_val_batches
+
+    if avg_val_loss < best_val_loss:
+        best_val_loss = avg_val_loss
+        torch.save(model.state_dict(), "models/chess_lstm_best.pth")
+        print(f"Сохранена лучшая модель на эпохе {epoch+1} с Val Loss: {avg_val_loss:.4f}")
 
     # Логируем в ClearML
     task.logger.report_scalar("Loss", "val", value=avg_val_loss, iteration=epoch)

@@ -82,7 +82,7 @@ task.connect({
 })
 
 # 6. Обучение
-for epoch in range(10):
+for epoch in range(15):
     model.train()
     total_loss = 0
     for X_batch, y_batch in train_loader:

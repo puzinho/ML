@@ -2,16 +2,6 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from clearml import Task
 
-task = Task.create(
-    project_name="Chess_LSTM",
-    task_name="LSTM V5 (Colab)",
-    repo="https://github.com/puzinho/ML.git",
-    branch="main",
-    script="chess_lstm/train.py",
-)
-Task.enqueue(task, queue_name="colab_queue")
-print(task.id)
-
 from data_loader import CHECKPOINT_DIR, ensure_data, load_dataset, load_vocab
 from models.chess_lstm import ChessLSTM
 

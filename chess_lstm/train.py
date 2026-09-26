@@ -8,7 +8,6 @@ task = Task.create(
     repo="https://github.com/puzinho/ML.git",
     branch="main",
     script="chess_lstm/train.py",
-    requirements=["torch", "clearml"],
 )
 Task.enqueue(task, queue_name="colab_queue")
 print(task.id)

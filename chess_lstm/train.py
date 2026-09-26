@@ -2,6 +2,17 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from clearml import Task
 
+task = Task.create(
+    project_name="Chess_LSTM",
+    task_name="LSTM V5 (Colab)",
+    repo="https://github.com/puzinho/ML.git",
+    branch="main",
+    script="chess_lstm/train.py",
+    requirements=["torch", "clearml"],
+)
+Task.enqueue(task, queue_name="colab_queue")
+print(task.id)
+
 from data_loader import CHECKPOINT_DIR, ensure_data, load_dataset, load_vocab
 from models.chess_lstm import ChessLSTM
 
@@ -70,10 +81,10 @@ def evaluate(model, loader, criterion, device):
 
 def main():
     ensure_data()
-
+    
     task = Task.init(project_name="Chess_LSTM", task_name="train")
     config = task.connect(DEFAULT_CONFIG)  # гиперпараметры видны и редактируемы в UI
-
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[train] device: {device}")
 

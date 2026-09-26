@@ -1,3 +1,5 @@
+from clearml import Task
+
 task = Task.create(
     project_name="Chess_LSTM",
     task_name="LSTM V5.1 (Colab)",

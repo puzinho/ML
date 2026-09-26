@@ -6,8 +6,8 @@ import chess
 import pandas as pd
 from tqdm import tqdm
 
-CSV_PATH = Path("C:/Users/neddy/Machine Learning/ml/chess_lstm/data/raw/chess_games.csv")   # <- имя твоего файла
-PROCESSED_PATH = Path("C:/Users/neddy/Machine Learning/ml/chess_lstm/data/processed/games.json")
+CSV_PATH = Path("C:/Users/Igorek/Desktop/MachineLearning/ML/chess_lstm/data/raw/chess_games.csv")   # <- имя твоего файла
+PROCESSED_PATH = Path("C:/Users/Igorek/Desktop/MachineLearning/ML/chess_lstm/data/processed/games.json")
 MAX_GAMES = 20000     
 MIN_MOVES = 8         
 MIN_RATING = 1500   

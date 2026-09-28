@@ -9,7 +9,7 @@ DEFAULT_CONFIG = {
     "epochs": 20,
     "batch_size": 64,
     "lr": 1e-3,
-    "weight_decay": 0.0,
+    "weight_decay": 1e-4,
     "emb_dim": 128,
     "hidden_size": 256,
     "num_layers": 2,

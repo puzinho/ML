@@ -23,11 +23,24 @@ def topk_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
     return (top_k == targets.unsqueeze(1)).any(dim=1).float().mean().item()
 
 
-def frequency_baseline_top5(y_train: torch.Tensor, y_val: torch.Tensor, vocab_size: int) -> float:
-    """Бейзлайн: как часто ход из валидации входит в 5 самых частых ходов трейна."""
-    counts = torch.bincount(y_train, minlength=vocab_size)
-    top5 = counts.topk(5).indices
-    return (y_val.unsqueeze(1) == top5.unsqueeze(0)).any(dim=1).float().mean().item()
+def markov_baseline_top5(y_train, y_val, vocab_size):
+    """Бейзлайн: для каждого последнего хода - топ-5 самых частых ответов на него в трейне."""
+    from collections import defaultdict
+    # Считаем частоту пар (последний ход -> следующий ход)
+    transitions = defaultdict(lambda: torch.zeros(vocab_size))
+    for prev, nxt in zip(y_train[:-1], y_train[1:]):
+        transitions[prev.item()][nxt.item()] += 1
+    
+    # Для каждого val-примера: берём его предпоследний ход, находим топ-5 ответов на него
+    hits = 0
+    for i in range(len(y_val)):
+        if i == 0:
+            continue  # у первого val-примера нет предыдущего хода из трейна
+        last_move = y_val[i-1].item()
+        top5 = transitions[last_move].topk(5).indices
+        if y_val[i].item() in top5.tolist():
+            hits += 1
+    return hits / len(y_val)
 
 
 def make_loaders(dataset: dict, batch_size: int):
@@ -81,8 +94,8 @@ def main():
     dataset = load_dataset()
     train_loader, val_loader = make_loaders(dataset, config["batch_size"])
 
-    baseline = frequency_baseline_top5(dataset["y_train"], dataset["y_val"], vocab_size)
-    print(f"[train] частотный бейзлайн Top-5: {baseline:.4f}")
+    baseline = markov_baseline_top5(dataset["y_train"], dataset["y_val"], vocab_size)
+    print(f"[train] марковский бейзлайн Top-5: {baseline:.4f}")
     task.logger.report_scalar("Baseline", "Top-5", value=baseline, iteration=0)
 
     model = ChessLSTM(

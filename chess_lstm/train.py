@@ -6,7 +6,7 @@ from data_loader import CHECKPOINT_DIR, ensure_data, load_dataset, load_vocab
 from models.chess_lstm import ChessLSTM
 
 DEFAULT_CONFIG = {
-    "epochs": 20,
+    "epochs": 30,
     "batch_size": 64,
     "lr": 1e-3,
     "weight_decay": 1e-4,

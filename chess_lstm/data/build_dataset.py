@@ -27,7 +27,7 @@ VAL_RATIO = 0.1
 
 # настройки clearml
 CLEARML_PROJECT = "Chess_LSTM"
-CLEARML_DATASET_NAME = "Chess UCI Dataset"
+CLEARML_DATASET_NAME = "Chess UCI Dataset High ELO"
 
 
 def build_dataset():
@@ -67,8 +67,8 @@ def build_dataset():
     if len(X) == 0:
         raise ValueError("Ошибка, пустой файл Games.json")
 
-    X = torch.tensor(X, dtype=torch.long)
-    y = torch.tensor(y, dtype=torch.long)
+    X = torch.tensor(X, dtype=torch.int16)
+    y = torch.tensor(y, dtype=torch.int16)
     print(f"Создано примеров: {len(X)}")
 
     # делим на train, val и test

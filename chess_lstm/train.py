@@ -44,8 +44,8 @@ def markov_baseline_top5(y_train, y_val, vocab_size):
 
 
 def make_loaders(dataset: dict, batch_size: int):
-    train = TensorDataset(dataset["X_train"], dataset["y_train"])
-    val = TensorDataset(dataset["X_val"], dataset["y_val"])
+    train = TensorDataset(dataset["X_train"].long(), dataset["y_train"].long())
+    val = TensorDataset(dataset["X_val"].long(), dataset["y_val"].long())
     return (
         DataLoader(train, batch_size=batch_size, shuffle=True),
         DataLoader(val, batch_size=batch_size, shuffle=False),

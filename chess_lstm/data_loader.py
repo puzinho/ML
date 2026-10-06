@@ -22,6 +22,7 @@ def ensure_data() -> None:
     from clearml import Dataset
     print(f"[data] {missing}")
     dataset = Dataset.get(dataset_project=DATASET_PROJECT, dataset_name=DATASET_NAME)
+    print(f"[data] взят dataset id: {dataset.id}")
     cache = Path(dataset.get_local_copy())
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     for name in missing:

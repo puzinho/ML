@@ -44,8 +44,8 @@ def markov_baseline_top5(y_train, y_val, vocab_size):
 
 
 def make_loaders(dataset: dict, batch_size: int):
-    train = TensorDataset(dataset["X_train"].long(), dataset["y_train"].long())
-    val = TensorDataset(dataset["X_val"].long(), dataset["y_val"].long())
+    train = TensorDataset(dataset["X_train"], dataset["y_train"])
+    val = TensorDataset(dataset["X_val"], dataset["y_val"])
     return (
         DataLoader(train, batch_size=batch_size, shuffle=True),
         DataLoader(val, batch_size=batch_size, shuffle=False),
@@ -56,7 +56,7 @@ def train_one_epoch(model, loader, criterion, optimizer, device) -> float:
     model.train()
     total, batches = 0.0, 0
     for x, y in loader:
-        x, y = x.to(device), y.to(device)
+        x, y = x.to(device).long(), y.to(device).long()
         optimizer.zero_grad()
         loss = criterion(model(x), y)
         loss.backward()
@@ -72,7 +72,7 @@ def evaluate(model, loader, criterion, device):
     total, batches = 0.0, 0
     hits = {1: 0.0, 3: 0.0, 5: 0.0}
     for x, y in loader:
-        x, y = x.to(device), y.to(device)
+        x, y = x.to(device).long(), y.to(device).long()
         logits = model(x)
         total += criterion(logits, y).item()
         batches += 1

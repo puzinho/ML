@@ -4,7 +4,11 @@ from clearml import Task
 
 from data_loader import CHECKPOINT_DIR, ensure_data, load_dataset, load_vocab
 from models.chess_lstm import ChessLSTM
+import os, psutil
 
+def mem(tag):
+    print(f"[mem] {tag}: {psutil.Process(os.getpid()).rss / 1e9:.2f} GB", flush=True)
+    
 DEFAULT_CONFIG = {
     "epochs": 30,
     "batch_size": 64,
@@ -82,8 +86,9 @@ def evaluate(model, loader, criterion, device):
 
 
 def main():
+    print("start")
     ensure_data()
-    
+    print("ensure data done")
     task = Task.init(project_name="Chess_LSTM", task_name="train")
     config = task.connect(DEFAULT_CONFIG)  # гиперпараметры видны и редактируемы в UI
     
@@ -92,8 +97,9 @@ def main():
 
     vocab_size = len(load_vocab())
     dataset = load_dataset()
+    print("dataset loaded")
     train_loader, val_loader = make_loaders(dataset, config["batch_size"])
-
+    print("make_loaders done")
     baseline = markov_baseline_top5(dataset["y_train"], dataset["y_val"], vocab_size)
     print(f"[train] марковский бейзлайн Top-5: {baseline:.4f}")
     task.logger.report_scalar("Baseline", "Top-5", value=baseline, iteration=0)

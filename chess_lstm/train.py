@@ -27,24 +27,40 @@ def topk_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
     return (top_k == targets.unsqueeze(1)).any(dim=1).float().mean().item()
 
 
-def markov_baseline_top5(y_train, y_val, vocab_size):
-    """Бейзлайн: для каждого последнего хода - топ-5 самых частых ответов на него в трейне."""
-    from collections import defaultdict
-    # Считаем частоту пар (последний ход -> следующий ход)
-    transitions = defaultdict(lambda: torch.zeros(vocab_size))
-    for prev, nxt in zip(y_train[:-1], y_train[1:]):
-        transitions[prev.item()][nxt.item()] += 1
-    
-    # Для каждого val-примера: берём его предпоследний ход, находим топ-5 ответов на него
-    hits = 0
-    for i in range(len(y_val)):
-        if i == 0:
-            continue  # у первого val-примера нет предыдущего хода из трейна
-        last_move = y_val[i-1].item()
-        top5 = transitions[last_move].topk(5).indices
-        if y_val[i].item() in top5.tolist():
-            hits += 1
-    return hits / len(y_val)
+def markov_baseline_top5(X_train, y_train, X_val, y_val, vocab_size):
+    """Марковский бейзлайн 1-го порядка: по последнему ходу контекста выдаёт
+    топ-5 самых частых ответов на него в трейне и считает долю попаданий на val."""
+
+    # Пары Маркова из трейна: последний ход контекста и ответ на него.
+    # .long() обязателен: bincount и индексация в PyTorch принимают только int64
+    prev_tr = X_train[:, -1].long()        # [N]    последние ходы контекстов
+    next_tr = y_train.long()               # [N]    ответы на них
+
+    # Упаковка пары (prev, next) в одно число по формуле "строка * ширина + столбец":
+    # это номер клетки в воображаемой квадратной таблице vocab x vocab,
+    # поэтому двумерную таблицу частот можно собрать одномерной гистограммой
+    pair_idx = prev_tr * vocab_size + next_tr                     # [N]
+    counts = torch.bincount(pair_idx, minlength=vocab_size ** 2)  # гистограмма пар
+    counts = counts.view(vocab_size, vocab_size)  # строка = ход, столбец = частота ответа
+
+    # Топ-5 самых частых ответов сразу для всех ходов: по строкам таблицы
+    top5 = counts.topk(5, dim=1).indices          # [vocab, 5]
+
+    # ИСПРАВЛЕНИЕ: ходы, не встречавшиеся в трейне, дают нулевую строку,
+    # и topk вернул бы для них произвольные индексы 0..4. Подменяем такие строки
+    # глобальным топ-5: не видел этот ход в контексте - предлагай популярное вообще
+    seen = counts.sum(dim=1) > 0
+    if not bool(seen.all()):
+        top5[~seen] = counts.sum(dim=0).topk(5).indices
+
+    # Каждый val-пример получает своих пять кандидатов: строку таблицы,
+    # соответствующую последнему ходу его контекста
+    prev_val = X_val[:, -1].long()                # [M]
+    candidates = top5[prev_val]                   # [M, 5]
+
+    # Попал ли настоящий ход в кандидаты: сравниваем ответ с каждым из пяти
+    hit = (candidates == y_val.long().unsqueeze(1)).any(dim=1)
+    return hit.float().mean().item()              # доля True = доля попаданий
 
 
 def make_loaders(dataset: dict, batch_size: int):
@@ -100,7 +116,12 @@ def main():
     print("dataset loaded")
     train_loader, val_loader = make_loaders(dataset, config["batch_size"])
     print("make_loaders done")
-    baseline = markov_baseline_top5(dataset["y_train"], dataset["y_val"], vocab_size)
+    baseline = markov_baseline_top5(
+        dataset["X_train"], dataset["y_train"],
+        dataset["X_val"], dataset["y_val"], vocab_size,
+    )
+    print(f"[train] марковский бейзлайн Top-5: {baseline:.4f}")
+    task.logger.report_scalar("Baseline", "Markov Top-5", value=baseline, iteration=0)
     print(f"[train] марковский бейзлайн Top-5: {baseline:.4f}")
     task.logger.report_scalar("Baseline", "Top-5", value=baseline, iteration=0)
 

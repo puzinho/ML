@@ -18,7 +18,7 @@ DEFAULT_CONFIG = {
     "hidden_size": 256,
     "num_layers": 2,
     "dropout": 0.2,
-    "patience": 3,
+    "patience": 5,
 }
 
 

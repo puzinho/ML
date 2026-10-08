@@ -21,7 +21,7 @@ VOCAB_PATH = PROCESSED_DIR / "vocab.json"
 DATASET_PATH = PROCESSED_DIR / "dataset.pt"
 
 # параметры подготовки данных
-CONTEXT_SIZE = 12          # сколько последних полуходов видит модель на входе
+CONTEXT_SIZE = 24          # сколько последних полуходов видит модель на входе
 MIN_FREQ = 2               # ходы реже этого порога уходят в <UNK>: словарь не раздувается мусором
 TRAIN_RATIO = 0.8
 VAL_RATIO = 0.1

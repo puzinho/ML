@@ -105,7 +105,7 @@ if __name__ == "__main__":
     assert torch.allclose(probs.sum(dim=1), torch.ones(batch_size)), \
         "Сумма вероятностей не равна 1"
 
-    print("✅ Модель работает корректно!")
+    print("Модель работает корректно!")
     print(f"Форма входа: {dummy_input.shape} (batch, context_size)")
     print(f"Форма выхода: {output.shape} (batch, vocab_size)")
     print(f"Пример вероятностей: {probs[0, :5].detach().numpy()}")

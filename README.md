@@ -5,6 +5,7 @@
 - Репозиторий: https://github.com/puzinho/ML
 - Датасет: https://huggingface.co/datasets/angeluriot/chess_games
 - ClearML: проект `Chess_LSTM`, задача v7 и датасет `Chess UCI Dataset`
+- Ссылка на видео: https://cloud.mail.ru/public/1a7E/AJHqYgipx
 
 ---
 

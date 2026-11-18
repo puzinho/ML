@@ -9,9 +9,7 @@
 - 
 ## 🎥 Видеопрезентация
 
-<p align="center">
-  <video src="video.mp4" controls width="800"></video>
-</p>
+https://raw.githubusercontent.com/puzinho/ML/main/video.mp4
 
 
 

@@ -1,10 +1,10 @@
 # Предсказание следующего шахматного хода (LSTM)
 
-Проект по дисциплине «Прикладные методы искусственного интеллекта».
-Выполнил: студент группы 4165 Скринник Игорь Николаевич.
-Репозиторий: https://github.com/puzinho/ML
-Датасет: https://huggingface.co/datasets/angeluriot/chess_games
-ClearML: проект `Chess_LSTM`, задача v7 и датасет `Chess UCI Dataset`
+- Проект по дисциплине «Прикладные методы искусственного интеллекта».
+- Выполнил: студент группы 4165 Скринник Игорь Николаевич.
+- Репозиторий: https://github.com/puzinho/ML
+- Датасет: https://huggingface.co/datasets/angeluriot/chess_games
+- ClearML: проект `Chess_LSTM`, задача v7 и датасет `Chess UCI Dataset`
 
 ---
 

@@ -6,7 +6,12 @@
 - Датасет: https://huggingface.co/datasets/angeluriot/chess_games
 - ClearML: проект `Chess_LSTM`, задача v7 и датасет `Chess UCI Dataset`
 - Ссылка на видео: https://cloud.mail.ru/public/1a7E/AJHqYgipx
-<video src="video.mp4" controls width="100%" preload="metadata"></video>
+- 
+## 🎥 Видеопрезентация
+
+<p align="center">
+  <video src="video.mp4" controls width="800"></video>
+</p>
 
 
 

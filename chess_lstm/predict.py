@@ -58,7 +58,7 @@ def main():
     # разбор аргументов запуска
     ap = argparse.ArgumentParser()
     ap.add_argument("--vocab", type=Path, default=HERE / "data" / "processed" / "vocab.json")
-    ap.add_argument("--weights", type=Path, default=HERE / "models" / "best.pt")
+    ap.add_argument("--weights", type=Path, default=HERE / "models" / "chess_lstm_best.pth")
     ap.add_argument("--context", type=int, default=12)
     args = ap.parse_args()
 
